@@ -33,3 +33,4 @@ expo-env.d.ts
 
 *.apk
 "*.apk" 
+"biocha.apk" 

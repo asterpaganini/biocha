@@ -1,13 +1,16 @@
 {
   "expo": {
-    "name": "pastoral-cha2",
-    "slug": "pastoral-cha2",
-    "version": "1.0.0",
+    "name": "BioChá",
+    "slug": "biocha",
+    "version": "1.0.6",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -15,7 +18,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.asterpaganini.biocha"
     },
     "web": {
       "bundler": "metro",
@@ -27,15 +31,30 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#f2fae7"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c56a227a-fd48-4acb-b07c-2b15f06ddd19"
+      }
+    },
+    "owner": "asterpaganini",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c56a227a-fd48-4acb-b07c-2b15f06ddd19"
     }
   }
 }

@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
-import { Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 import { useRouter } from 'expo-router';
-import { Search } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import chas from '../../chas';
+import { BottomNavigationHeight } from '../_layout';
 
 // Estilização dos componentes
-const Container = styled.ScrollView`
+const Container = styled.View`
   flex: 1;
   background-color: #f0f8f5;
   padding: 20px;
+  padding-bottom: ${() => BottomNavigationHeight}px;
+`;
+
+const ScrollContainer = styled.ScrollView`
+  flex-grow: 1;
+`;
+
+const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f8f5;
 `;
 
 const Logo = styled.View`
@@ -70,6 +83,7 @@ const CardContainer = styled.View`
   margin: 10px;
   width: 250px;
   align-items: center;
+  justify-content: center;
 `;
 
 const CardImage = styled.Image`
@@ -86,17 +100,29 @@ const CardText = styled.Text`
   text-align: center;
 `;
 
+const ScientificName = styled.Text`
+  font-size: 14px;
+  font-style: italic;
+  color: #2e7d32;
+  text-align: center;
+  margin-bottom: 5px;
+`;
+
 const CardDescription = styled.Text`
   font-size: 14px;
   color: #388e3c;
   text-align: center;
+  margin-bottom: 5px;
 `;
 
 const WarningText = styled.Text`
   font-size: 14px;
   color: #d32f2f;
   text-align: center;
-  margin-top: 20px;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
 `;
 
 const ViewAllButton = styled.TouchableOpacity`
@@ -129,11 +155,23 @@ const healthTips = [
   { id: 3, tip: 'Inclua frutas e vegetais em sua dieta.' },
 ];
 
+// IDs dos chás mais indicados pela Pastoral
+const chasIndicadosIDs = [42, 63, 54, 27, 23];
+
+// Filtrar os chás que serão exibidos na Home
+const chasIndicados = chas.filter((tea) => chasIndicadosIDs.includes(tea.id));
+
 // Componente principal (Home)
 export default function HomeScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const featuredTeas = chas.slice(-3).reverse(); // Últimos 3 chás cadastrados
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -141,46 +179,61 @@ export default function HomeScreen() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <ActivityIndicator size="large" color="#6ab04c" />
+      </LoadingContainer>
+    );
+  }
+
   return (
     <Container>
-      {/* Logo do app */}
-      <Logo>
-        <LogoText>🍵</LogoText>
-      </Logo>
-      <WelcomeText>Bem-vindo à Pastoral da Saúde!</WelcomeText>
-      <SearchContainer>
-        <SearchInput
-          placeholder="Buscar por chá ou sintoma..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <SearchIcon onPress={handleSearch}>
-          <Search size={24} color="#2e7d32" />
-        </SearchIcon>
-      </SearchContainer>
-      <SectionTitle>Chás em Destaque</SectionTitle>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {featuredTeas.map((tea) => (
-          <CardContainer key={tea.id}>
-            <CardImage source={tea.imagem} />
-            <CardText>{tea.nome}</CardText>
-            <CardDescription>{tea.propriedades}</CardDescription>
-            <CardDescription>Preparo: {tea.preparação}</CardDescription>
-          </CardContainer>
+      <ScrollContainer showsVerticalScrollIndicator={false}>
+        <Logo>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={{ width: 150, height: 150, borderRadius: 80 }}
+          />
+        </Logo>
+        <WelcomeText>Bem-vindo à Pastoral da Saúde!</WelcomeText>
+        <SearchContainer>
+          <SearchInput
+            placeholder="Buscar por chá ou sintoma..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <SearchIcon onPress={handleSearch}>
+            <Ionicons name="search" size={24} color="#2e7d32" />
+          </SearchIcon>
+        </SearchContainer>
+        <SectionTitle>Chás Mais Indicados</SectionTitle>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {chasIndicados.map((tea) => (
+            <CardContainer key={tea.id}>
+              <CardImage source={tea.imagem} />
+              <CardText>{tea.nome}</CardText>
+              <ScientificName>{tea.nome_cientifico}</ScientificName>
+              <CardDescription>Propriedades: {tea.propriedades}</CardDescription>
+              <CardDescription>Preparo: {tea.preparacao}</CardDescription>
+              <CardDescription>Sintomas: {tea.sintomas.join(', ')}</CardDescription>
+              <WarningText>Contraindicações: {tea.contraIndicacoes}</WarningText>
+            </CardContainer>
+          ))}
+        </ScrollView>
+        <ViewAllButton onPress={() => router.push('/ListaCha')}>
+          <ViewAllText>Ver Lista Completa</ViewAllText>
+        </ViewAllButton>
+        <SectionTitle>Dicas de Saúde</SectionTitle>
+        {healthTips.map((tip) => (
+          <HealthTipCard key={tip.id}>
+            <CardText>{tip.tip}</CardText>
+          </HealthTipCard>
         ))}
-      </ScrollView>
-      <ViewAllButton onPress={() => router.push('/ListaChas')}>
-        <ViewAllText>Ver Lista Completa</ViewAllText>
-      </ViewAllButton>
-      <SectionTitle>Dicas de Saúde</SectionTitle>
-      {healthTips.map((tip) => (
-        <HealthTipCard key={tip.id}>
-          <CardText>{tip.tip}</CardText>
-        </HealthTipCard>
-      ))}
-      <WarningText>
-        As informações fornecidas são orientativas. Consulte sempre um médico para diagnóstico e tratamento adequado.
-      </WarningText>
+        <WarningText>
+          As informações fornecidas são orientativas. Consulte sempre um médico para diagnóstico e tratamento adequado.
+        </WarningText>
+      </ScrollContainer>
     </Container>
   );
 }
